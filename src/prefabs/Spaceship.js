@@ -15,10 +15,7 @@ class Spaceship extends Phaser.GameObjects.Sprite {
             this.moveDirection = ["right-left","left-right"][Math.floor(Math.random()*2)];
             if (this.moveDirection == "left-right" ) {
                 this.setOrigin(0.5,0.5);
-                //this.scale = -1;
-                
                 this.angle = 180;
-                //this.rotate = 50;
             }
         }
     }
@@ -35,7 +32,6 @@ class Spaceship extends Phaser.GameObjects.Sprite {
             var posy = 0;
             var amplitude = 40;
             var frequency = 20;
-            //console.log(game.config.width);
             while (posx < game.config.width) {
                 posy = this.initY + amplitude * Math.sin(posx/frequency);
                 this.path.push([posx,posy]);
@@ -53,16 +49,18 @@ class Spaceship extends Phaser.GameObjects.Sprite {
                 if (this.moveDirection == "left-right") {
                     this.x = newMove[0];
                 }
-                this.y = newMoveY;   
+                this.y = newMoveY;  
+                //fix mvoving over hud !!!!!!
+                // if (this.y <= 108 +(this.height/2)) {
+                //     this.y = 107;
+                // } 
             }
         }
-        //this.x -= Math.round(Math.random() * 10);
         if (this.x <= 0 - this.width) {
             this.reset(); 
         }
-        if (this.x + this.width >= game.config.width) {
-
-        }
+        // if (this.x + this.width >= game.config.width) {
+        // }
     }
     reset() {
         this.path = [];

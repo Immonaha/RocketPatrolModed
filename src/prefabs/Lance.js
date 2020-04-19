@@ -13,7 +13,6 @@ class Lance extends Phaser.GameObjects.Sprite {
     }
     update() {
         //movement
-        //this.x = game.input.mousePointer.x;
         if(this.x < 47) {
             this.x = 47;
         }

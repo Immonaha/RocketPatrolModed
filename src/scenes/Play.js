@@ -206,9 +206,6 @@ class Play extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(keyESC)) {
             this.pauseGame(!this.paused);
         }
-        //console.log('X:' + this.input.mousePointer.x);
-
-        //console.log('Y:' + this.input.activePointer.y);
 
         //scroll starfield
         if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
@@ -257,7 +254,6 @@ class Play extends Phaser.Scene {
             rocket.x + rocket.width > ship.x && 
             rocket.y < ship.y + ship.height &&
             rocket.height + rocket.y > ship. y) {
-
                 return true;
         }
         else {
