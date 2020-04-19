@@ -31,7 +31,12 @@ class Play extends Phaser.Scene {
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-
+        
+        //define mouse
+        game.input.mouse.capture = true;
+        //add fire ondown listener
+        this.input.on('pointerdown', () => this.p1Rocket.isFiring = true);
+        //explosion anim
         this.anims.create({
             key: "explode",
             frames: this.anims.generateFrameNumbers("explosion", { start: 0, end: 9, first: 0}),
@@ -68,6 +73,10 @@ class Play extends Phaser.Scene {
     }
 
     update() {
+        //console.log('X:' + this.input.mousePointer.x);
+
+        //console.log('Y:' + this.input.activePointer.y);
+
         //scroll starfield
         this.starfield.tilePositionX -= 4;
 
