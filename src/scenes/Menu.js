@@ -59,6 +59,8 @@ class Menu extends Phaser.Scene {
       }
 
     update() {
+      this.scene.start("playScene",{highscore: game.settings["highscore"]});    
+
         if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
           // easy mode
           game.settings["spaceshipSpeed"] = 3;

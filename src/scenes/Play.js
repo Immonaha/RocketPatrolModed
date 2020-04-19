@@ -69,9 +69,30 @@ class Play extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers("explosion", { start: 0, end: 9, first: 0}),
             frameRate: 30
         });
+        var gameOverConfig = {
+            fontFamily: "Courier",
+            fontSize: "28px",
+            backgroundColor: "#F3B141",
+            color: "#843605",
+            align: "right",
+            padding: {
+                top: 5,
+                bottom: 0,
+            },
+            fixedWidth: 0
+        }
+        // 60-second play clock
+        this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
+            console.log("GAME OVER");
+            this.add.text(game.config.width/2, game.config.height/2, "GAME OVER", gameOverConfig).setOrigin(0.5);
+            this.add.text(game.config.width/2, game.config.height/2 + 64, "(ESC) to return to Main Menu", gameOverConfig).setOrigin(0.5);
+            this.gameOver = true;
+            this.music.stop();
+            this.music.seek = 0;
+        }, null, this);
+
         // score
         this.p1Score = 0;
-
         // score display
         var scoreConfig = {
             fontFamily: "Courier",
@@ -81,26 +102,19 @@ class Play extends Phaser.Scene {
             align: "right",
             padding: {
                 top: 5,
-                bottom: 5,
+                bottom: 0,
             },
             fixedWidth: 100
         }
-        this.scoreLeft = this.add.text(69, 54, this.p1Score, scoreConfig);
+        //66 to align with bottom of green bar (71 without bottom padding)
+        this.scoreLeft = this.add.text(37, 71, this.p1Score, scoreConfig);
+        this.scoreHighscore = this.add.text(503, 71, this.highscore, scoreConfig);
+        this.timerText = this.add.text((game.config.width/2)-50, 71, "0", scoreConfig);
+
         
         //flags
         this.gameOver = false;
         this.paused = false;
-
-        // 60-second play clock
-        scoreConfig.fixedWidth = 0;
-        this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-            console.log("GAME OVER");
-            this.add.text(game.config.width/2, game.config.height/2, "GAME OVER", scoreConfig).setOrigin(0.5);
-            this.add.text(game.config.width/2, game.config.height/2 + 64, "(ESC) to return to Main Menu", scoreConfig).setOrigin(0.5);
-            this.gameOver = true;
-            this.music.stop();
-            this.music.seek = 0;
-        }, null, this);
 
         // and show and hid listener
         game.events.addListener(Phaser.Core.Events.FOCUS, this._onFocus, this);
@@ -133,6 +147,7 @@ class Play extends Phaser.Scene {
             this.ship01.update();
             this.ship02.update();
             this.ship03.update();
+            this.timerText.text = (game.settings.gameTimer/1000) - this.clock.getElapsedSeconds();
         } 
         // force all weaps to act like rocket
         // this.weapons.forEach(function(weap) {
@@ -206,8 +221,9 @@ class Play extends Phaser.Scene {
     }
     pauseGame(mode) {
         //true to pause the game false to unpause
-        if (mode) {
+        if (mode && !this.paused) {
             this.paused = true;
+            this.time.paused = true;
             this.music.pause();
             this.pausedText = this.add.text(game.config.width/2, game.config.height/2, "PAUSED", {
                 fontFamily: "Courier",
@@ -222,15 +238,16 @@ class Play extends Phaser.Scene {
                 fixedWidth: 100
             }).setOrigin(0.5);
         }
-        else {
+        if (!mode ){
             this.paused = false;
+            this.time.paused = false;
             this.music.resume();
             this.pausedText.destroy()
         }
     }
     _onFocus() {
         if (!this.gameOver){
-            this.pauseGame(false);
+            //this.pauseGame(false);
             //console.log("you got focus!");
         }
     }
