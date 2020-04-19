@@ -4,6 +4,7 @@ class Play extends Phaser.Scene {
     }
     preload() {
         this.load.image("rocket","./assets/rocket.png");
+        this.load.image("rocket","./assets/bomb.png");
         this.load.image("spaceship","./assets/spaceship.png");
         this.load.image("starfield","./assets/starfield.png");
         this.load.spritesheet("explosion", "./assets/explosion.png", {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
@@ -19,8 +20,14 @@ class Play extends Phaser.Scene {
         //green ui background
         this.add.rectangle(37,42,566,64,0x00FF00).setOrigin(0,0);
 
-        //add player 1
+        //add player 1 weapon 1
         this.p1Rocket = new Rocket(this, game.config.width/2, 431, "rocket",0).setScale(0.5,0.5).setOrigin(0,0);
+        this.p1Bomb = new Bomb(this, game.config.width/2, 431, "bomb",0).setScale(0.5,0.5).setOrigin(0,0);
+       
+        //add weapons to weaponlist
+        this.weapons = [this.p1Rocket,this.p1Bomb];
+        this.selectedWeaponIndex = 0;
+
         //add ship#1
         this.ship01 = new Spaceship(this, game.config.width+192, 132, "spaceship",30,0).setOrigin(0,0);
         this.ship02 = new Spaceship(this, game.config.width+96, 196, "spaceship",20,0).setOrigin(0,0);
@@ -31,11 +38,14 @@ class Play extends Phaser.Scene {
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         
         //define mouse
         game.input.mouse.capture = true;
         //add fire ondown listener
-        this.input.on('pointerdown', () => this.p1Rocket.isFiring = true);
+        this.input.on('pointerdown', () => this.p1Rocket.fire());
+        this.input.on('pointerdown', () => this.p1Bomb.fire());
+
         //explosion anim
         this.anims.create({
             key: "explode",
@@ -79,7 +89,9 @@ class Play extends Phaser.Scene {
 
         //scroll starfield
         this.starfield.tilePositionX -= 4;
-
+        if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
+            this.swapWeapon();
+        }
         //gameover -> restart
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyF)) {
             this.scene.restart(this.p1Score);
@@ -138,5 +150,18 @@ class Play extends Phaser.Scene {
         this.scoreLeft.text = this.p1Score;  
         // play explosion sound
         this.sound.play("sfx_explosion");    
+    }
+    swapWeapon() {
+        if (!this.weapons[this.selectedWeaponIndex].isFiring) {
+            weapons.forEaach(function(el){
+                el.visible = false;
+            });
+            if (this.selectedWeaponIndex == this.weapons.length-1) {
+                this.selectedWeaponIndex = 0;
+            }
+            else {
+                this.selectedWeaponIndex += 1;
+            }
+        }
     }
 }

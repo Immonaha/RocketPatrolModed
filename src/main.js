@@ -12,4 +12,4 @@ game.settings = {
     gameTimer: 60000    
 }
 
-var keyF,keyLEFT,keyRIGHT;
+var keyF,keyLEFT,keyRIGHT,keySPACE;
