@@ -103,27 +103,6 @@ class Play extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers("explosion", { start: 0, end: 9, first: 0}),
             frameRate: 30
         });
-        var gameOverConfig = {
-            fontFamily: "Courier",
-            fontSize: "28px",
-            backgroundColor: "#F3B141",
-            color: "#843605",
-            align: "right",
-            padding: {
-                top: 5,
-                bottom: 0,
-            },
-            fixedWidth: 0
-        }
-        // 60-second play clock
-        this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-            console.log("GAME OVER");
-            this.add.text(game.config.width/2, game.config.height/2, "GAME OVER", gameOverConfig).setOrigin(0.5);
-            this.add.text(game.config.width/2, game.config.height/2 + 64, "(ESC) to return to Main Menu", gameOverConfig).setOrigin(0.5);
-            this.gameOver = true;
-            this.music.stop();
-            this.music.seek = 0;
-        }, null, this);
 
         // score
         this.p1Score = 0;
@@ -141,9 +120,51 @@ class Play extends Phaser.Scene {
             fixedWidth: 100
         }
         //66 to align with bottom of green bar (71 without bottom padding)
+        //score and clock display
         this.scoreLeft = this.add.text(37, 71, this.p1Score, scoreConfig);
-        this.scoreHighscore = this.add.text(503, 71, this.highscore, scoreConfig);
         this.timerText = this.add.text((game.config.width/2), 71, "0", scoreConfig).setOrigin(0.5,0);
+        scoreConfig.fixedWidth = 120;
+        this.scoreHighscore = this.add.text(483, 71, this.highscore, scoreConfig);
+
+        //hud small text
+        var hudTextConfig = {
+            fontFamily: "Courier",
+            fontSize: "20px",
+            color: "#000000",
+            align: "right",
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            fixedWidth: 0
+        }
+        this.scoreText = this.add.text(72, 42, "SCORE", hudTextConfig).setOrigin(0.5,0);
+        this.highscoreText = this.add.text(545, 42, "HIGHSCORE", hudTextConfig).setOrigin(0.5,0);
+        this.timeLeftText = this.add.text((game.config.width/2), 42, "TIME LEFT", hudTextConfig).setOrigin(0.5,0);
+
+        // 60-second play clock
+        var gameOverConfig = {
+            fontFamily: "Courier",
+            fontSize: "28px",
+            backgroundColor: "#F3B141",
+            color: "#843605",
+            align: "right",
+            padding: {
+                top: 5,
+                bottom: 0,
+            },
+            fixedWidth: 0
+        }
+        this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
+            console.log("GAME OVER");
+            this.timerText.text = 0
+            this.add.text(game.config.width/2, game.config.height/2, "GAME OVER", gameOverConfig).setOrigin(0.5);
+            this.add.text(game.config.width/2, game.config.height/2 + 64, "(ESC) to return to Main Menu", gameOverConfig).setOrigin(0.5);
+            this.gameOver = true;
+            this.music.stop();
+            this.music.seek = 0;
+        }, null, this);
+
 
         //flags
         this.gameOver = false;
@@ -152,8 +173,20 @@ class Play extends Phaser.Scene {
         // and show and hid listener
         game.events.addListener(Phaser.Core.Events.FOCUS, this._onFocus, this);
         game.events.addListener(Phaser.Core.Events.BLUR, this._onBlur, this);
-
-        this.pausedText = "";
+        //pause text
+        this.pausedText = this.add.text(game.config.width/2, game.config.height/2, "PAUSED", {
+            fontFamily: "Courier",
+            fontSize: "28px",
+            backgroundColor: "#F3B141",
+            color: "#843605",
+            align: "right",
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            fixedWidth: 100
+        }).setOrigin(0.5);
+        this.pausedText.visible = false;
     }
 
     update() {
@@ -266,24 +299,13 @@ class Play extends Phaser.Scene {
             this.paused = true;
             this.time.paused = true;
             this.music.pause();
-            this.pausedText = this.add.text(game.config.width/2, game.config.height/2, "PAUSED", {
-                fontFamily: "Courier",
-                fontSize: "28px",
-                backgroundColor: "#F3B141",
-                color: "#843605",
-                align: "right",
-                padding: {
-                    top: 5,
-                    bottom: 5,
-                },
-                fixedWidth: 100
-            }).setOrigin(0.5);
+            this.pausedText.visible = true;
         }
         if (!mode ){
             this.paused = false;
             this.time.paused = false;
             this.music.resume();
-            this.pausedText.destroy()
+            this.pausedText.visible = false;
         }
     }
     _onFocus() {

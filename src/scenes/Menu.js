@@ -42,9 +42,8 @@ class Menu extends Phaser.Scene {
         var centerY = game.config.height/2;
         var textSpacer = 64;
         this.add.text(centerX, centerY - textSpacer*3, "ROCKET PATROL", menuConfig).setOrigin(0.5);
-        this.add.text(centerX, centerY - textSpacer*2, "Use (mouse) to move", menuConfig).setOrigin(0.5);
-        this.add.text(centerX, centerY - textSpacer, "Use (left click) to Fire", menuConfig).setOrigin(0.5);
-
+        this.add.text(centerX, centerY - textSpacer*2, "(mouse) to move (left click) to fire", menuConfig).setOrigin(0.5);
+        this.add.text(centerX, centerY - textSpacer, "(space) to switch weapons", menuConfig).setOrigin(0.5);
         menuConfig.backgroundColor = "#00ff00";
         menuConfig.color = "#000"
         this.add.text(centerX, centerY, "Press ← for Easy or → for Hard", menuConfig).setOrigin(0.5);
@@ -59,19 +58,20 @@ class Menu extends Phaser.Scene {
       }
 
     update() {
-      this.scene.start("playScene",{highscore: game.settings["highscore"]});    
 
         if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
           // easy mode
-          game.settings["spaceshipSpeed"] = 3;
-          game.settings["gameTimer"] = 60000;
+          game.settings.spaceshipSpeed = 3;
+          game.settings.gameTimer = 60000;
+          game.settings.hardMode = false;
           this.sound.play('sfx_select');
           this.scene.start("playScene",{highscore: game.settings["highscore"]});    
         }
         if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
           // hard mode
-          game.settings["spaceshipSpeed"] = 4;
-          game.settings["gameTimer"] = 4000;
+          game.settings.spaceshipSpeed = 4;
+          game.settings.gameTimer = 40000;
+          game.settings.hardMode = true;
           this.sound.play('sfx_select');
           this.scene.start("playScene",{highscore: game.settings["highscore"]});    
         }
