@@ -1,4 +1,4 @@
-class Bomb extends Phaser.GameObjects.Sprite {
+class Lance extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, texture, frame) {
         super(scene, x, y, texture, frame);
 

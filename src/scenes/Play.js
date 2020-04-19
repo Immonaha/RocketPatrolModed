@@ -4,7 +4,7 @@ class Play extends Phaser.Scene {
     }
     preload() {
         this.load.image("rocket","./assets/rocket.png");
-        this.load.image("rocket","./assets/bomb.png");
+        this.load.image("rocket","./assets/lance.png");
         this.load.image("spaceship","./assets/spaceship.png");
         this.load.image("starfield","./assets/starfield.png");
         this.load.spritesheet("explosion", "./assets/explosion.png", {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
@@ -22,11 +22,12 @@ class Play extends Phaser.Scene {
 
         //add player 1 weapon 1
         this.p1Rocket = new Rocket(this, game.config.width/2, 431, "rocket",0).setScale(0.5,0.5).setOrigin(0,0);
-        this.p1Bomb = new Bomb(this, game.config.width/2, 431, "bomb",0).setScale(0.5,0.5).setOrigin(0,0);
+        this.p1Lance = new Lance(this, game.config.width/2, 431, "lance",0).setScale(0.5,0.5).setOrigin(0,0);
        
         //add weapons to weaponlist
-        this.weapons = [this.p1Rocket,this.p1Bomb];
-        this.selectedWeaponIndex = 0;
+        this.weapons = [this.p1Rocket,this.p1Lance];
+        this.selectedWeaponIndex = this.weapons.length-1;
+        this.swapWeapon();
 
         //add ship#1
         this.ship01 = new Spaceship(this, game.config.width+192, 132, "spaceship",30,0).setOrigin(0,0);
@@ -44,7 +45,7 @@ class Play extends Phaser.Scene {
         game.input.mouse.capture = true;
         //add fire ondown listener
         this.input.on('pointerdown', () => this.p1Rocket.fire());
-        this.input.on('pointerdown', () => this.p1Bomb.fire());
+        this.input.on('pointerdown', () => this.p1Lance.fire());
 
         //explosion anim
         this.anims.create({
@@ -104,6 +105,7 @@ class Play extends Phaser.Scene {
         
         if (!this.gameOver) {               
             this.p1Rocket.update();
+            this.p1Lance.update();
             this.ship01.update();
             this.ship02.update();
             this.ship03.update();
@@ -153,7 +155,8 @@ class Play extends Phaser.Scene {
     }
     swapWeapon() {
         if (!this.weapons[this.selectedWeaponIndex].isFiring) {
-            weapons.forEaach(function(el){
+            console.log("swapping weapons");
+            this.weapons.forEach(function(el){
                 el.visible = false;
             });
             if (this.selectedWeaponIndex == this.weapons.length-1) {
@@ -162,6 +165,8 @@ class Play extends Phaser.Scene {
             else {
                 this.selectedWeaponIndex += 1;
             }
+            this.weapons[this.selectedWeaponIndex].visible = true;
+            console.log(this.weapons[this.selectedWeaponIndex].constructor.name);
         }
     }
 }
