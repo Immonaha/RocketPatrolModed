@@ -10,11 +10,15 @@ class Play extends Phaser.Scene {
         this.load.image("lance","./assets/lance.png");
         this.load.image("spaceship","./assets/spaceship.png");
         this.load.image("starfield","./assets/starfield.png");
+        this.load.image("starfieldFront","./assets/starfieldFront.png");
         this.load.spritesheet("explosion", "./assets/explosion.png", {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
+        this.load.spritesheet("lanceAmmo", "./assets/lanceAmmo.png", {frameWidth: 96, frameHeight: 32});
+
     }
     create() {
         //place tile sprite
         this.starfield = this.add.tileSprite(0,0,640,480,"starfield").setOrigin(0,0);
+        this.starfieldFront = this.add.tileSprite(0,0,640,480,"starfieldFront").setOrigin(0,0);
         //white rec border
         this.add.rectangle(5,5,630,32,0xFFFFFF).setOrigin(0,0);
         this.add.rectangle(5,443,630,32,0xFFFFFF).setOrigin(0,0);
@@ -32,6 +36,24 @@ class Play extends Phaser.Scene {
             loop: true,
         };
         this.music.play(this.musicConfig);
+
+        //lance uses
+        this.lanceAmmo = 6;
+        this.lanceAmmoSprite = this.add.sprite(152,74,"lanceAmmo").setOrigin(0,0);
+        //this.lanceAmmoSprite2 = this.add.sprite(152,90,"lanceAmmo").setOrigin(0,0);
+        var lanceArmedTextConfig = {
+            fontFamily: "Courier",
+            fontSize: "28px",
+            color: "#843605",
+            align: "right",
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            fixedWidth: 0
+        }
+        this.lanceArmedText = this.add.text(155,42, "ARMED", lanceArmedTextConfig).setOrigin(0,0);
+        this.lanceArmedText.visible = false;
 
         //add player 1 weapon 1
         this.p1Rocket = new Rocket(this, game.config.width/2, 431, "rocket",0).setScale(0.5,0.5).setOrigin(0,0);
@@ -61,7 +83,19 @@ class Play extends Phaser.Scene {
         game.input.mouse.capture = true;
         //add fire ondown listener
         this.input.on('pointerdown', () => this.p1Rocket.fire());
-        this.input.on('pointerdown', () => this.p1Lance.fire());
+        //this.input.on('pointerdown', () => this.p1Lance.fire());
+        this.input.on('pointerdown', () => {
+            if (this.lanceAmmo > 0) {
+                if (!this.p1Lance.isFiring && this.p1Lance.visible) {
+                    this.p1Lance.fire();
+                    this.lanceAmmo -= 1;
+                    this.lanceAmmoSprite.setFrame(6-this.lanceAmmo);
+                    if (this.lanceAmmo == 0) {
+                        this.lanceArmedText.text = "NO AMMO";
+                    }
+                }
+            }
+        });
 
         //explosion anim
         this.anims.create({
@@ -109,9 +143,8 @@ class Play extends Phaser.Scene {
         //66 to align with bottom of green bar (71 without bottom padding)
         this.scoreLeft = this.add.text(37, 71, this.p1Score, scoreConfig);
         this.scoreHighscore = this.add.text(503, 71, this.highscore, scoreConfig);
-        this.timerText = this.add.text((game.config.width/2)-50, 71, "0", scoreConfig);
+        this.timerText = this.add.text((game.config.width/2), 71, "0", scoreConfig).setOrigin(0.5,0);
 
-        
         //flags
         this.gameOver = false;
         this.paused = false;
@@ -124,6 +157,9 @@ class Play extends Phaser.Scene {
     }
 
     update() {
+        this.starfield.tilePositionX -= 4;
+        this.starfieldFront.tilePositionX += Math.abs(game.input.mousePointer.x - this.weapons[this.selectedWeaponIndex].x)/64;
+
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyESC)) {
             this.scene.start("menuScene",{highscore: this.p1Score});
         }
@@ -135,7 +171,6 @@ class Play extends Phaser.Scene {
         //console.log('Y:' + this.input.activePointer.y);
 
         //scroll starfield
-        this.starfield.tilePositionX -= 4;
         if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
             this.swapWeapon();
         }
@@ -216,7 +251,13 @@ class Play extends Phaser.Scene {
                 this.selectedWeaponIndex += 1;
             }
             this.weapons[this.selectedWeaponIndex].visible = true;
-            //console.log(this.weapons[this.selectedWeaponIndex].constructor.name);
+            //show and hide lance ammo text
+            if (this.weapons[this.selectedWeaponIndex] instanceof Lance) {
+                this.lanceArmedText.visible = true;
+            }
+            else {
+                this.lanceArmedText.visible = false;
+            }
         }
     }
     pauseGame(mode) {
