@@ -3,8 +3,12 @@ class Menu extends Phaser.Scene {
         super("menuScene");
     }
     init(data){
+        this.newHighscore = false;
         if (data.highscore) {
-            game.settings["highscore"] = data.highscore;
+            if (data.highscore > game.settings["highscore"]) {
+                game.settings["highscore"] = data.highscore;
+                this.newHighscore = true;
+            }
         }
     }
     preload() {
@@ -49,7 +53,9 @@ class Menu extends Phaser.Scene {
         menuConfig.backgroundColor = "#00ff00";
         menuConfig.color = "#000"
         this.add.text(centerX, centerY + textSpacer*2, "===>"+game.settings["highscore"]+"<===", menuConfig).setOrigin(0.5);
-
+        if (this.newHighscore) {
+            this.add.text(centerX, centerY + textSpacer*3, "!!NEW HIGHSCORE!!", menuConfig).setOrigin(0.5);
+        }
       }
 
     update() {
@@ -63,7 +69,7 @@ class Menu extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
           // hard mode
           game.settings["spaceshipSpeed"] = 4;
-          game.settings["gameTimer"] = 45000;
+          game.settings["gameTimer"] = 4000;
           this.sound.play('sfx_select');
           this.scene.start("playScene",{highscore: game.settings["highscore"]});    
         }

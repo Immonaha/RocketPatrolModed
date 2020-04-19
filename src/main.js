@@ -13,4 +13,4 @@ game.settings = {
     highscore: 0,
 }
 
-var keyF,keyLEFT,keyRIGHT,keySPACE;
+var keyF,keyLEFT,keyRIGHT,keySPACE,keyESC;

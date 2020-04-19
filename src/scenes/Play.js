@@ -55,6 +55,7 @@ class Play extends Phaser.Scene {
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
         
         //define mouse
         game.input.mouse.capture = true;
@@ -86,21 +87,35 @@ class Play extends Phaser.Scene {
         }
         this.scoreLeft = this.add.text(69, 54, this.p1Score, scoreConfig);
         
-        // game over flag
+        //flags
         this.gameOver = false;
+        this.paused = false;
 
         // 60-second play clock
         scoreConfig.fixedWidth = 0;
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
+            console.log("GAME OVER");
             this.add.text(game.config.width/2, game.config.height/2, "GAME OVER", scoreConfig).setOrigin(0.5);
-            this.add.text(game.config.width/2, game.config.height/2 + 64, "(F)ire to Restartor ← for Menu", scoreConfig).setOrigin(0.5);
+            this.add.text(game.config.width/2, game.config.height/2 + 64, "(ESC) to return to Main Menu", scoreConfig).setOrigin(0.5);
             this.gameOver = true;
             this.music.stop();
             this.music.seek = 0;
         }, null, this);
+
+        // and show and hid listener
+        game.events.addListener(Phaser.Core.Events.FOCUS, this._onFocus, this);
+        game.events.addListener(Phaser.Core.Events.BLUR, this._onBlur, this);
+
+        this.pausedText = "";
     }
 
     update() {
+        if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyESC)) {
+            this.scene.start("menuScene",{highscore: this.p1Score});
+        }
+        if (Phaser.Input.Keyboard.JustDown(keyESC)) {
+            this.pauseGame(!this.paused);
+        }
         //console.log('X:' + this.input.mousePointer.x);
 
         //console.log('Y:' + this.input.activePointer.y);
@@ -110,17 +125,9 @@ class Play extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
             this.swapWeapon();
         }
-        //gameover -> restart
-        if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyF)) {
-            this.scene.restart(this.p1Score);
-        }
-
         //gameover -> menu
-        if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
-            this.scene.start("menuScene",{highscore: this.p1Score});
-        }
         
-        if (!this.gameOver) {               
+        if (!this.gameOver && !this.paused) {               
             this.p1Rocket.update();
             this.p1Lance.update();
             this.ship01.update();
@@ -195,6 +202,42 @@ class Play extends Phaser.Scene {
             }
             this.weapons[this.selectedWeaponIndex].visible = true;
             //console.log(this.weapons[this.selectedWeaponIndex].constructor.name);
+        }
+    }
+    pauseGame(mode) {
+        //true to pause the game false to unpause
+        if (mode) {
+            this.paused = true;
+            this.music.pause();
+            this.pausedText = this.add.text(game.config.width/2, game.config.height/2, "PAUSED", {
+                fontFamily: "Courier",
+                fontSize: "28px",
+                backgroundColor: "#F3B141",
+                color: "#843605",
+                align: "right",
+                padding: {
+                    top: 5,
+                    bottom: 5,
+                },
+                fixedWidth: 100
+            }).setOrigin(0.5);
+        }
+        else {
+            this.paused = false;
+            this.music.resume();
+            this.pausedText.destroy()
+        }
+    }
+    _onFocus() {
+        if (!this.gameOver){
+            this.pauseGame(false);
+            //console.log("you got focus!");
+        }
+    }
+    _onBlur() {
+        if (!this.gameOver){
+            this.pauseGame(true);
+            //console.log("you lost focus!");
         }
     }
 }
