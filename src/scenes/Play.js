@@ -2,9 +2,12 @@ class Play extends Phaser.Scene {
     constructor() {
         super("playScene");
     }
+    init(data){
+        this.highscore = data.highscore;
+    }
     preload() {
         this.load.image("rocket","./assets/rocket.png");
-        this.load.image("rocket","./assets/lance.png");
+        this.load.image("lance","./assets/lance.png");
         this.load.image("spaceship","./assets/spaceship.png");
         this.load.image("starfield","./assets/starfield.png");
         this.load.spritesheet("explosion", "./assets/explosion.png", {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
@@ -20,6 +23,16 @@ class Play extends Phaser.Scene {
         //green ui background
         this.add.rectangle(37,42,566,64,0x00FF00).setOrigin(0,0);
 
+        //music!
+        this.music = this.sound.add("bgmusic");
+        this.musicConfig = {
+            mute: false,
+            volume: 1,
+            seek: 0,
+            loop: true,
+        };
+        this.music.play(this.musicConfig);
+
         //add player 1 weapon 1
         this.p1Rocket = new Rocket(this, game.config.width/2, 431, "rocket",0).setScale(0.5,0.5).setOrigin(0,0);
         this.p1Lance = new Lance(this, game.config.width/2, 431, "lance",0).setScale(0.5,0.5).setOrigin(0,0);
@@ -34,6 +47,8 @@ class Play extends Phaser.Scene {
         this.ship02 = new Spaceship(this, game.config.width+96, 196, "spaceship",20,0).setOrigin(0,0);
         this.ship03 = new Spaceship(this, game.config.width, 260, "spaceship",10,0).setOrigin(0,0);
 
+        //add ships to list for faster collision
+        this.ships = [this.ship01,this.ship02,this.ship03]
 
         //define keyboard
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
@@ -80,6 +95,8 @@ class Play extends Phaser.Scene {
             this.add.text(game.config.width/2, game.config.height/2, "GAME OVER", scoreConfig).setOrigin(0.5);
             this.add.text(game.config.width/2, game.config.height/2 + 64, "(F)ire to Restartor ← for Menu", scoreConfig).setOrigin(0.5);
             this.gameOver = true;
+            this.music.stop();
+            this.music.seek = 0;
         }, null, this);
     }
 
@@ -100,7 +117,7 @@ class Play extends Phaser.Scene {
 
         //gameover -> menu
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
-            this.scene.start("menuScene");
+            this.scene.start("menuScene",{highscore: this.p1Score});
         }
         
         if (!this.gameOver) {               
@@ -109,21 +126,32 @@ class Play extends Phaser.Scene {
             this.ship01.update();
             this.ship02.update();
             this.ship03.update();
-} 
+        } 
+        // force all weaps to act like rocket
+        // this.weapons.forEach(function(weap) {
+        //     this.ships.forEach(function(ship) {
+        //         if (this.checkCollision(weap, ship)) {
+        //             weap.reset();
+        //             this.shipExplode(ship);
+        //         }
+        //     },this);
+        // },this);
 
-
-        if (this.checkCollision(this.p1Rocket, this.ship01)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship01);
-        }
-        if (this.checkCollision(this.p1Rocket, this.ship02)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship02);
-        }
-        if(this.checkCollision(this.p1Rocket, this.ship03)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship03);
-        }
+        //collision for p1Rocket
+        this.ships.forEach(function(ship) {
+            if (this.checkCollision(this.p1Rocket, ship)) {
+                this.p1Rocket.reset();
+                this.shipExplode(ship);
+            }
+        },this);
+        //collision for p1Lance
+        this.ships.forEach(function(ship) {
+            if (this.checkCollision(this.p1Lance, ship)) {
+                if (!ship.exploding) {
+                    this.shipExplode(ship);
+                }
+            }
+        },this);
     }
     checkCollision(rocket, ship) {
         // did we smack the ship?
@@ -138,6 +166,7 @@ class Play extends Phaser.Scene {
         }
     }
     shipExplode(ship) {
+        ship.exploding = true;
         ship.alpha = 0; // temporarily hide ship
         // create explosion sprite at ship's position
         let boom = this.add.sprite(ship.x, ship.y, "explosion").setOrigin(0, 0);
@@ -155,7 +184,6 @@ class Play extends Phaser.Scene {
     }
     swapWeapon() {
         if (!this.weapons[this.selectedWeaponIndex].isFiring) {
-            console.log("swapping weapons");
             this.weapons.forEach(function(el){
                 el.visible = false;
             });
@@ -166,7 +194,7 @@ class Play extends Phaser.Scene {
                 this.selectedWeaponIndex += 1;
             }
             this.weapons[this.selectedWeaponIndex].visible = true;
-            console.log(this.weapons[this.selectedWeaponIndex].constructor.name);
+            //console.log(this.weapons[this.selectedWeaponIndex].constructor.name);
         }
     }
 }

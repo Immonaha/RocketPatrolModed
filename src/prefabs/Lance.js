@@ -22,15 +22,17 @@ class Lance extends Phaser.GameObjects.Sprite {
         }
         //move the rocket with cursor
         // no isFiring check so you can aim
-        if (game.input.mousePointer.x > this.x) {
-            this.x +=2;
-        }
-        if (game.input.mousePointer.x < this.x) {
-            this.x -=2;
+        if (!this.isFiring){
+            if (game.input.mousePointer.x > this.x) {
+                this.x +=2;
+            }
+            if (game.input.mousePointer.x < this.x) {
+                this.x -=2;
+            }
         }
         //speed of rocket
         if (this.isFiring && this.y >= 108) {
-            this.y -= 2;
+            this.y -= 10;
         }
         //reset on miss
         if (this.y <= 108) {
