@@ -64,6 +64,7 @@ class Menu extends Phaser.Scene {
           game.settings.spaceshipSpeed = 3;
           game.settings.gameTimer = 60000;
           game.settings.hardMode = false;
+          game.settings.pointScale = [10,20,30];
           this.sound.play('sfx_select');
           this.scene.start("playScene",{highscore: game.settings["highscore"]});    
         }
@@ -72,8 +73,9 @@ class Menu extends Phaser.Scene {
           //in hardmode speed translates to frames of path moved per update
           //this number is best kept low
           game.settings.spaceshipSpeed = 2;
-          game.settings.gameTimer = 400000;
+          game.settings.gameTimer = 30000;
           game.settings.hardMode = true;
+          game.settings.pointScale = [15,25,50];
           this.sound.play('sfx_select');
           this.scene.start("playScene",{highscore: game.settings["highscore"]});    
         }

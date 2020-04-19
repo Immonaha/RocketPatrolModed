@@ -65,9 +65,9 @@ class Play extends Phaser.Scene {
         this.swapWeapon();
 
         //add ships
-        this.ship01 = new Spaceship(this, game.config.width+192, 132, "spaceship",30,0).setOrigin(0,0);
-        this.ship02 = new Spaceship(this, game.config.width+96, 196, "spaceship",20,0).setOrigin(0,0);
-        this.ship03 = new Spaceship(this, game.config.width, 260, "spaceship",10,0).setOrigin(0,0);
+        this.ship01 = new Spaceship(this, game.config.width+192, 132, "spaceship",game.settings.pointScale[2],0).setOrigin(0,0);
+        this.ship02 = new Spaceship(this, game.config.width+96, 196, "spaceship",game.settings.pointScale[1],0).setOrigin(0,0);
+        this.ship03 = new Spaceship(this, game.config.width, 260, "spaceship",game.settings.pointScale[0],0).setOrigin(0,0);
 
         //add ships to list for faster collision
         this.ships = [this.ship01,this.ship02,this.ship03]
@@ -169,7 +169,7 @@ class Play extends Phaser.Scene {
         //flags
         this.gameOver = false;
         this.paused = false;
-        this.debugmode = true;
+        this.debugmode = false;
 
         // and show and hid listener
         game.events.addListener(Phaser.Core.Events.FOCUS, this._onFocus, this);
