@@ -64,7 +64,7 @@ class Play extends Phaser.Scene {
         this.selectedWeaponIndex = this.weapons.length-1;
         this.swapWeapon();
 
-        //add ship#1
+        //add ships
         this.ship01 = new Spaceship(this, game.config.width+192, 132, "spaceship",30,0).setOrigin(0,0);
         this.ship02 = new Spaceship(this, game.config.width+96, 196, "spaceship",20,0).setOrigin(0,0);
         this.ship03 = new Spaceship(this, game.config.width, 260, "spaceship",10,0).setOrigin(0,0);
@@ -169,6 +169,7 @@ class Play extends Phaser.Scene {
         //flags
         this.gameOver = false;
         this.paused = false;
+        this.debugmode = true;
 
         // and show and hid listener
         game.events.addListener(Phaser.Core.Events.FOCUS, this._onFocus, this);
@@ -187,12 +188,18 @@ class Play extends Phaser.Scene {
             fixedWidth: 100
         }).setOrigin(0.5);
         this.pausedText.visible = false;
+
+        //debug assignments
+        if (this.debugmode) {
+            this.renderdebug = this.add.graphics();
+        }
     }
 
     update() {
         this.starfield.tilePositionX -= 4;
         this.starfieldFront.tilePositionX += Math.abs(game.input.mousePointer.x - this.weapons[this.selectedWeaponIndex].x)/64;
 
+        //gameover -> menu
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyESC)) {
             this.scene.start("menuScene",{highscore: this.p1Score});
         }
@@ -207,7 +214,6 @@ class Play extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
             this.swapWeapon();
         }
-        //gameover -> menu
         
         if (!this.gameOver && !this.paused) {               
             this.p1Rocket.update();
@@ -217,38 +223,41 @@ class Play extends Phaser.Scene {
             this.ship03.update();
             this.timerText.text = (game.settings.gameTimer/1000) - this.clock.getElapsedSeconds();
         } 
-        // force all weaps to act like rocket
-        // this.weapons.forEach(function(weap) {
-        //     this.ships.forEach(function(ship) {
-        //         if (this.checkCollision(weap, ship)) {
-        //             weap.reset();
-        //             this.shipExplode(ship);
-        //         }
-        //     },this);
-        // },this);
 
         //collision for p1Rocket
+        //using getbounds because flipping the sprite messes up pos
         this.ships.forEach(function(ship) {
-            if (this.checkCollision(this.p1Rocket, ship)) {
-                this.p1Rocket.reset();
+            if (this.checkCollision(this.p1Rocket, ship.getBounds())) {
                 this.shipExplode(ship);
+                this.p1Rocket.reset();
             }
         },this);
         //collision for p1Lance
+        //using getbounds because flipping the sprite messes up pos
         this.ships.forEach(function(ship) {
-            if (this.checkCollision(this.p1Lance, ship)) {
+            if (this.checkCollision(this.p1Lance, ship.getBounds())) {
                 if (!ship.exploding) {
                     this.shipExplode(ship);
                 }
             }
         },this);
+
+        //debugupdates
+        if (this.debugmode) {
+            this.renderdebug.clear();
+            this.ships.forEach(function(ship){
+                this.renderdebug.lineStyle(3, 0xfacade);
+                this.renderdebug.strokeRectShape(new Phaser.Geom.Rectangle(
+                    ship.x,ship.y,ship.width,ship.height));
+            },this);
+        }
     }
     checkCollision(rocket, ship) {
-        // did we smack the ship?
         if (rocket.x < ship.x + ship.width && 
             rocket.x + rocket.width > ship.x && 
             rocket.y < ship.y + ship.height &&
             rocket.height + rocket.y > ship. y) {
+
                 return true;
         }
         else {
@@ -256,10 +265,11 @@ class Play extends Phaser.Scene {
         }
     }
     shipExplode(ship) {
+        var shipBounds = ship.getBounds()
         ship.exploding = true;
         ship.alpha = 0; // temporarily hide ship
         // create explosion sprite at ship's position
-        let boom = this.add.sprite(ship.x, ship.y, "explosion").setOrigin(0, 0);
+        let boom = this.add.sprite(shipBounds.x, shipBounds.y, "explosion").setOrigin(0, 0);
         boom.anims.play("explode"); // play explode animation
         boom.on("animationcomplete", () => { // callback after animation completes
             ship.reset(); // reset ship position

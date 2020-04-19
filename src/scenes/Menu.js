@@ -69,8 +69,10 @@ class Menu extends Phaser.Scene {
         }
         if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
           // hard mode
-          game.settings.spaceshipSpeed = 4;
-          game.settings.gameTimer = 40000;
+          //in hardmode speed translates to frames of path moved per update
+          //this number is best kept low
+          game.settings.spaceshipSpeed = 2;
+          game.settings.gameTimer = 400000;
           game.settings.hardMode = true;
           this.sound.play('sfx_select');
           this.scene.start("playScene",{highscore: game.settings["highscore"]});    
