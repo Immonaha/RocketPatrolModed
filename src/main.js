@@ -11,6 +11,7 @@ game.settings = {
     spaceshipSpeed: 3,
     gameTimer: 60000,
     highscore: 0,
+    hardMode: false,
 }
 
 var keyF,keyLEFT,keyRIGHT,keySPACE,keyESC;

@@ -10,10 +10,18 @@ class Spaceship extends Phaser.GameObjects.Sprite {
         this.exploding = false;
     }
     update() {
-        //move spaceshit left
-        this.x -= game.settings.spaceshipSpeed;
-        if (this.x <= 0 - this.width) {
-            this.reset(); 
+        if (!game.settings.hardMode) {
+            //move spaceshit left
+            this.x -= game.settings.spaceshipSpeed;
+            if (this.x <= 0 - this.width) {
+                this.reset(); 
+            }
+        }
+        else {
+            this.x -= Math.round(Math.random() * 10);
+            if (this.x <= 0 - this.width) {
+                this.reset(); 
+            }
         }
     }
     reset() {

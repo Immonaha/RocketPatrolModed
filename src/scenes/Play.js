@@ -52,7 +52,7 @@ class Play extends Phaser.Scene {
             },
             fixedWidth: 0
         }
-        this.lanceArmedText = this.add.text(155,42, "ARMED", lanceArmedTextConfig).setOrigin(0,0);
+        this.lanceArmedText = this.add.text(145,42, "ARMED", lanceArmedTextConfig).setOrigin(0,0);
         this.lanceArmedText.visible = false;
 
         //add player 1 weapon 1
